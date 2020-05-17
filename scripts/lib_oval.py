@@ -492,57 +492,17 @@ class OvalDocument(object):
             oval_type = OvalElement.getElementTypeFromOvalID(ovalid)
         except Exception:
             return False
-                
-        # Depending on the ID type, find the parent for it or create that parent if it doesn't exist
-        # Then append the current element
-        if oval_type == OvalDefinition.DEFINITION:
-            parent = root.find("def:definitions", OvalDocument.NS_DEFAULT)
-            if parent is None:
-                parent = Element("{" + OvalDocument.NS_DEFAULT.get("def") + "}definitions")
-                root.append(parent)
-                
-            parent.append(element.getElement())
-            return True
         
-        elif oval_type == OvalDefinition.TEST:
-            parent = root.find("def:tests", OvalDocument.NS_DEFAULT)
-            if parent is None:
-                parent = Element("{" + OvalDocument.NS_DEFAULT.get("def") + "}tests")
-                root.append(parent)
-                
-            parent.append(element.getElement())
-            return True
-        
-        elif oval_type == OvalDefinition.OBJECT:
-            parent = root.find("def:objects", OvalDocument.NS_DEFAULT)
-            if parent is None:
-                parent = Element("{" + OvalDocument.NS_DEFAULT.get("def") + "}objects")
-                root.append(parent)
-                
-            parent.append(element.getElement())
-            return True
-        
-        elif oval_type == OvalDefinition.STATE:
-            parent = root.find("def:states", OvalDocument.NS_DEFAULT)
-            if parent is None:
-                parent = Element("{" + OvalDocument.NS_DEFAULT.get("def") + "}states")
-                root.append(parent)
-                
-            parent.append(element.getElement())
-            return True
-        
-        elif oval_type == OvalDefinition.VARIABLE:
-            parent = root.find("def:variables", OvalDocument.NS_DEFAULT)
-            if parent is None:
-                parent = Element("{" + OvalDocument.NS_DEFAULT.get("def") + "}variables")
-                root.append(parent)
-                
-            parent.append(element.getElement())
-            return True
-        
-        else:
+        new_elem = OvalElement.create(oval_type, element)
+        if new_elem is None:
             return False
-
+        else:
+            expected_parent_tag = new_elem.getType() + "s"
+            parent = root.find("def:" + expected_parent_tag, OvalDocument.NS_DEFAULT)
+            if parent is None:
+                parent = Element("{" + OvalDocument.NS_DEFAULT.get("def") + "}" + expected_parent_tag)
+            parent.append(new_elem.element)
+            return True
 #--------------------- END OF OvalDocument class ----------------------------
 
 
